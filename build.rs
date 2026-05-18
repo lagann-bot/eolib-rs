@@ -1718,14 +1718,12 @@ fn find_protocol_for_type<'a>(
     for (protocol, path) in protocols {
         for element in &protocol.elements {
             match element {
-                Element::Struct(protocol_struct)
-                    if protocol_struct.name == data_type => {
-                        return Some(path);
-                    }
-                Element::Enum(protocol_enum)
-                    if protocol_enum.name == data_type => {
-                        return Some(path);
-                    }
+                Element::Struct(protocol_struct) if protocol_struct.name == data_type => {
+                    return Some(path);
+                }
+                Element::Enum(protocol_enum) if protocol_enum.name == data_type => {
+                    return Some(path);
+                }
                 _ => {}
             }
         }
