@@ -256,7 +256,7 @@ impl EoReader {
         decode_string(&mut buf);
         let position_of_break = match buf.iter().position(|b| *b == 0xff) {
             Some(position_of_break) => position_of_break,
-            None => length - 1,
+            None => length,
         };
         let (cow, _, _) = WINDOWS_1252.decode(&buf[..position_of_break]);
         cow.to_string()
