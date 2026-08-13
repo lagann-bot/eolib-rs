@@ -1472,16 +1472,10 @@ fn get_fixed_type_size(data_type: &str, structs: &[Struct], enums: &[Enum]) -> O
             match e {
                 StructElement::Comment(_) => {}
                 StructElement::Dummy(d) => {
-                    match get_fixed_type_size(&d.data_type, structs, enums) {
-                        Some(s) => size += s,
-                        None => return None,
-                    }
+                    size += get_fixed_type_size(&d.data_type, structs, enums)?;
                 }
                 StructElement::Field(f) => {
-                    match get_fixed_type_size(&f.data_type, structs, enums) {
-                        Some(s) => size += s,
-                        None => return None,
-                    }
+                    size += get_fixed_type_size(&f.data_type, structs, enums)?;
                 }
                 _ => return None,
             }
