@@ -28,9 +28,15 @@ impl Sequencer {
     }
 
     /// returns the next sequence value
+    ///
+    /// Returns the current `start + counter` value and *then* increments the
+    /// counter (0 → 9, looping). This matches the reference client
+    /// (`eolib` TypeScript `PacketSequencer.nextSequence`), where the first
+    /// call returns `start` and the counter only advances afterward.
     pub fn next_sequence(&mut self) -> i32 {
+        let sequence = self.start + self.counter;
         self.counter = (self.counter + 1) % 10;
-        self.start + self.counter
+        sequence
     }
 
     /// sets a new starting value for the sequencer
@@ -86,4 +92,40 @@ pub fn get_ping_sequence_bytes(start: i32) -> [i32; 2] {
 /// used by the client after receiving Ping packet
 pub fn get_ping_sequence_start(s1: i32, s2: i32) -> i32 {
     s1 - s2
+}
+
+#[cfg(test)]
+mod tests {
+    use super::Sequencer;
+
+    #[test]
+    fn next_sequence_returns_start_before_incrementing() {
+        let mut sequencer = Sequencer::new(100);
+
+        // First call returns the start value, then advances the counter.
+        assert_eq!(sequencer.next_sequence(), 100);
+        assert_eq!(sequencer.next_sequence(), 101);
+        assert_eq!(sequencer.next_sequence(), 102);
+    }
+
+    #[test]
+    fn counter_wraps_after_ten() {
+        let mut sequencer = Sequencer::new(0);
+
+        for i in 0..10 {
+            assert_eq!(sequencer.next_sequence(), i);
+        }
+        // Wrapped back around to 0.
+        assert_eq!(sequencer.next_sequence(), 0);
+    }
+
+    #[test]
+    fn set_start_does_not_reset_counter() {
+        let mut sequencer = Sequencer::new(0);
+        sequencer.next_sequence(); // 0, counter -> 1
+
+        sequencer.set_start(50);
+        // Counter is still 1, so the next value is 50 + 1.
+        assert_eq!(sequencer.next_sequence(), 51);
+    }
 }
