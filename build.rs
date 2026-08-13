@@ -840,6 +840,9 @@ fn write_struct_deserialize(
             StructElement::Dummy(dummy) => {
                 code.push_str(&format!("        reader.get_{}();\n", dummy.data_type));
             }
+            StructElement::Break => {
+                code.push_str("        reader.next_chunk()?;\n");
+            }
             StructElement::Length(length) => {
                 generate_deserialize_length(code, length);
             }
